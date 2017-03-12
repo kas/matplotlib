@@ -1,23 +1,34 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import urllib
+import requests
+import sys
+import json
 # from pandas_datareader.data import DataReader
 
 def graph_data(stock):
+    # df = DataReader('TSLA','yahoo')
+
     fig = plt.figure() # in order to modify the figure we need to reference it first
     ax1 = plt.subplot2grid((1, 1), (0, 0))
 
-    # stock_price_url = 'http://chartapi.finance.yahoo.com/instrument/1.0/{}/chartdata;type=quote;range=10d/csv'.format(stock)
-    stock_price_url = 'http://chartapi.finance.yahoo.com/instrument/1.0/{}/chartdata;type=quote;range=10d/csv'.format(stock)
-    # df = DataReader('TSLA','yahoo')
-    source_code = urllib.request.urlopen(stock_price_url).read().decode()
-    split_source = source_code.split('\n')
-    stock_data = []
-    for line in split_source:
-        if (len(line.split(',')) == 6) and ('labels:' not in line) and (line != 'values:Timestamp,close,high,low,open,volume'):
-            stock_data.append(line)
+    stock_price_url = 'http://chartapi.finance.yahoo.com/instrument/1.0/{}/chartdata;type=quote;range=10d/json'.format(stock)
+    r = requests.get(stock_price_url)
+    r_jsonp_text = r.text
+    try:
+        left_index = r_jsonp_text.index('(') + 1
+        right_index = r_jsonp_text.rindex(')')
+    except ValueError:
+        print("Failed to convert JSONP to JSON.")
+        sys.exit(1)
+    r_json_text = r_jsonp_text[left_index:right_index]
+    data = json.loads(r_json_text)
 
-    timestamp, closep, highp, lowp, openp, volume = np.loadtxt(stock_data, delimiter=',', unpack=True)
+    timestamp = []
+    closep = []
+    for row in data['series']:
+        timestamp.append(row['Timestamp'])
+        closep.append(row['close'])
+
     timestamp = np.asarray(timestamp, dtype='datetime64[s]') # convert timestamp to dates
     timestamp = timestamp.tolist() # convert timestamp into list of datetime.datetimes
 
