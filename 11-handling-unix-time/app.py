@@ -19,7 +19,7 @@ def graph_data(stock):
 
     timestamp, closep, highp, lowp, openp, volume = np.loadtxt(stock_data, delimiter=',', unpack=True)
     timestamp = np.asarray(timestamp, dtype='datetime64[s]') # convert timestamp to dates
-    timestamp = timestamp.tolist()
+    timestamp = timestamp.tolist() # convert timestamp into list of datetime.datetimes
 
     ax1.plot_date(timestamp, closep, '-', label='Price')
     ax1.grid(True)
