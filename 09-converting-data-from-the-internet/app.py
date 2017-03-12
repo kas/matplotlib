@@ -2,16 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import urllib
 import matplotlib.dates as mdates
+from matplotlib.dates import bytespdate2num
 # from pandas_datareader.data import DataReader
-
-def bytespdate2num(fmt, encoding='utf-8'):
-    strconverter = mdates.strpdate2num(fmt)
-
-    def bytesconverter(b):
-        s = b.decode(encoding)
-        return strconverter(s)
-
-    return bytesconverter
 
 def graph_data(stock):
     stock_price_url = 'http://chartapi.finance.yahoo.com/instrument/1.0/{}/chartdata;type=quote;range=10y/csv'.format(stock)
